@@ -3,9 +3,12 @@ package br.com.alura.screenmatch.principal;
 import br.com.alura.screenmatch.Model.DadosEpisodios;
 import br.com.alura.screenmatch.Model.DadosSerie;
 import br.com.alura.screenmatch.Model.DadosTemporada;
+import br.com.alura.screenmatch.Model.Episodio;
 import br.com.alura.screenmatch.service.ConsumoAPI;
 import br.com.alura.screenmatch.service.ConverteDados;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -52,7 +55,28 @@ public class Principal {
                 .limit(5)
                 .forEach(System.out::println);
 
+        List<Episodio> episodio = temporadas.stream()
+                .flatMap(t->t.episodios().stream()
+                        .map(d -> new Episodio(t.numero(),d))
+                ).collect(Collectors.toList());
 
+        episodio.forEach(System.out::println);
+
+        System.out.println("A partir de que ano deseja ver os EPs?");
+        var ano = leitura.nextInt();
+        leitura.nextLine();
+
+        LocalDate dataBusca = LocalDate.of(ano,1,1);
+
+        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        episodio.stream()
+                .filter(e-> e.getDataDeLancamento() != null && e.getDataDeLancamento().isAfter(dataBusca))
+                .forEach(e-> System.out.println(
+                        "temporada: " + e.getTemporada() +
+                                " Episodio: " + e.getTitulo() +
+                                " Data de Lançamento: " + e.getDataDeLancamento().format(formatador)
+                ));
 
     }
 }
